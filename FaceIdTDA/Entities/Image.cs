@@ -13,14 +13,14 @@ namespace FaceIdTDA.Entities
 
         public int faceid { get; set; }
 
-        public string longitude { get; set; }
+        public double longitude { get; set; }
 
-        public string latitude { get; set; }
+        public double latitude { get; set; }
 
         public string remark { get; set; }
 
-        public string jppFile { get; set; }
+        public FileInfo jpgFile { get; set; }
 
-        public string jpegFile { get; set; }
+        public FileInfo jpegFile { get; set; }
     }
 }

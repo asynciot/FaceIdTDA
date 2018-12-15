@@ -10,8 +10,6 @@ namespace FaceIdTDA
 {
     class Program
     {
-        private static readonly object lockObjStatic = new object();
-
         static void Main(string[] args)
         {
             DIFaceIdTDA.InitializeDependencyInjection();
@@ -36,12 +34,9 @@ namespace FaceIdTDA
 
         private static void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            lock (lockObjStatic)
-            {
-                IServiceProvider serviceProvider = DIFaceIdTDA.GetServiceProvider();
-                var directoryTraverse = serviceProvider.GetRequiredService<DirectoryTraverse>();
-                directoryTraverse.Retrieve();
-            }
+            IServiceProvider serviceProvider = DIFaceIdTDA.GetServiceProvider();
+            var directoryTraverse = serviceProvider.GetRequiredService<DirectoryTraverse>();
+            directoryTraverse.Retrieve();
         } 
 
         public static void InitializeLog()

@@ -23,41 +23,56 @@ namespace FaceIdTDA.Controllers
 
         public void Retrieve()
         {
-            DirectoryInfo ftpDirectory = new DirectoryInfo(FTP_DIRECTORY);
-
-            foreach (FileInfo nextFile in ftpDirectory.GetFiles())
+            lock (FTP_DIRECTORY)
             {
+                DirectoryInfo ftpDirectory = new DirectoryInfo(FTP_DIRECTORY);
 
-                string[] fileNameItems = nextFile.Name.Split(".");
-                if (fileNameItems.Length == 2)
+                foreach (FileInfo nextFile in ftpDirectory.GetFiles())
                 {
-                    string filename = fileNameItems[0];
-
-                    Console.WriteLine(nextFile.FullName);
-                    Image image = null;
-                    if (!imageDictionary.TryGetValue(filename, out image))
+                    string[] fileNameItems = nextFile.Name.Split(".");
+                    if (fileNameItems.Length == 2)
                     {
-                        IServiceProvider serviceProvider = DIFaceIdTDA.GetServiceProvider();
-                        image = serviceProvider.GetRequiredService<Image>();
-                        imageDictionary[filename] = image;
+                        string filename = fileNameItems[0];
+
+                        Image image = null;
+                        if (!imageDictionary.TryGetValue(filename, out image))
+                        {
+                            IServiceProvider serviceProvider = DIFaceIdTDA.GetServiceProvider();
+                            image = serviceProvider.GetRequiredService<Image>();
+                            imageDictionary[filename] = image;
+
+                            string[] items = filename.Split("_");
+                            if (items.Length == 6)
+                            {
+                                image.zptime = items[0];
+                                image.puid = items[1];
+                                image.faceid = faceid++;
+                                image.remark = items[4] + "_" + items[5];
+                                image.latitude = 29.466893;
+                                image.longitude = 121.882763;
+                            }
+                        }
+
+                        switch (nextFile.Extension.ToLower())
+                        {
+                            case (".jpg"):
+                                image.jpgFile = nextFile;
+                                break;
+                            case (".jpeg"):
+                                image.jpegFile = nextFile;
+                                break;
+                        }
+
+                        if (image.jpegFile != null && image.jpgFile != null)
+                        {
+                            Console.WriteLine(image.jpegFile.FullName);
+                        }
                     }
-
-                    string[] items = filename.Split("_");
-                    if (items.Length == 6)
-                    {
-
-
-                        //image.zptime = items[0];
-                        //image.puid = items[1];
-                        //image.faceid = faceid++;
-                        //image.inFloor = items[4];
-                        //image.outFloor = items[5];
-                    }
+                    //File.Delete(nextFile.FullName);
                 }
-                File.Delete(nextFile.FullName);
-            }
 
-            imageDictionary.Clear();
+                imageDictionary.Clear();
+            }
         }
     }
 }
