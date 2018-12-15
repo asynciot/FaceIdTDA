@@ -10,22 +10,24 @@ namespace FaceIdTDA.Controllers
 {
     class DirectoryTraverse
     {
-        private static readonly string FTP_DIRECTORY = @"D:\Cloud\FTPDir\";
+        private readonly IDictionary<string, Image> imageDictionary;
+        private readonly IDictionary<string, string> headerDictionary;
 
         private int faceid = 0;
-
-        private readonly IDictionary<string, Image> imageDictionary;
 
         public DirectoryTraverse()
         {
             imageDictionary = new Dictionary<string, Image>();
+            headerDictionary = new Dictionary<string, string>();
+            headerDictionary.Add("Cache-Control", "no-cache");
+            headerDictionary.Add("Accept", "image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*");
         }
 
         public void Retrieve()
         {
-            lock (FTP_DIRECTORY)
+            lock (imageDictionary)
             {
-                DirectoryInfo ftpDirectory = new DirectoryInfo(FTP_DIRECTORY);
+                DirectoryInfo ftpDirectory = new DirectoryInfo(Program.FTP_DIRECTORY);
 
                 foreach (FileInfo nextFile in ftpDirectory.GetFiles())
                 {
@@ -65,7 +67,9 @@ namespace FaceIdTDA.Controllers
 
                         if (image.jpegFile != null && image.jpgFile != null)
                         {
-                            Console.WriteLine(image.jpegFile.FullName);
+                            imageDictionary.Remove(filename);
+                            Console.WriteLine(string.Format("{0}: {1}", image.faceid, image.jpegFile.FullName));
+                            FormUpload.MultipartFormPost(Program.REMOTE_SERVER, image, headerDictionary);
                         }
                     }
                     //File.Delete(nextFile.FullName);

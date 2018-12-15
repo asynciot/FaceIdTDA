@@ -10,6 +10,9 @@ namespace FaceIdTDA
 {
     class Program
     {
+        public static readonly string REMOTE_SERVER = "http://www.baidu.com/service/upload_pic.php?puid=1";
+        public static readonly string FTP_DIRECTORY = @"D:\Cloud\FTPDir\";
+
         static void Main(string[] args)
         {
             DIFaceIdTDA.InitializeDependencyInjection();
@@ -18,7 +21,7 @@ namespace FaceIdTDA
 
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-            timer.Interval = 1000; //1秒
+            timer.Interval = 3000;
             timer.Enabled = true;
 
             Console.WriteLine("AsyncIOT Lift Service started.");
