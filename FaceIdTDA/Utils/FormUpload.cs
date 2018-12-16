@@ -19,7 +19,7 @@ namespace FaceIdTDA.Utils
 
             byte[] formData = GetMultipartFormData(image, formDataBoundary);
 
-            using (HttpWebResponse response = PostForm(postUrl, contentType, formData, headers))
+            using (HttpWebResponse response = PostForm(image, postUrl, contentType, formData, headers))
             {
                 StreamReader responseReader = new StreamReader(response.GetResponseStream());
                 string responseText = responseReader.ReadToEnd();
@@ -27,10 +27,11 @@ namespace FaceIdTDA.Utils
             }
         }
 
-        private static HttpWebResponse PostForm(string postUrl, string contentType,
+        private static HttpWebResponse PostForm(Image image, string postUrl, string contentType,
             byte[] formData, IDictionary<string, string> headers)
         {
-            if (!(WebRequest.Create(postUrl) is HttpWebRequest request))
+            string url = string.Format(postUrl, image.zptime, image.faceid, image.longitude, image.latitude, image.remark);
+            if (!(WebRequest.Create(url) is HttpWebRequest request))
             {
                 throw new NullReferenceException("request is not a http request");
             }
@@ -42,7 +43,6 @@ namespace FaceIdTDA.Utils
             request.Timeout = 5000;
             request.ContentLength = formData.Length;
             request.KeepAlive = false;
-            //request.CookieContainer = new CookieContainer();
 
             // You could add authentication here as well if needed:  
             // request.PreAuthenticate = true;  

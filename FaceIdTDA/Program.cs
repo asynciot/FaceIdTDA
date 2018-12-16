@@ -10,7 +10,7 @@ namespace FaceIdTDA
 {
     class Program
     {
-        public static readonly string REMOTE_SERVER = "http://www.baidu.com/service/upload_pic.php?puid=1";
+        public static readonly string REMOTE_SERVER = @"http://www.baidu.com/service/upload_pic.php?puid=1&chan=1&zptime={0}&faceid={1}&facescore=0&x=0&y=0&width=0&height=0&age=0&sex=0&glass=0&end=0&stay=0&picnum=2&gpsEW=E&longitude={2}&gpsNS=N&latitude={3}&remark={4}";
         public static readonly string FTP_DIRECTORY = @"D:\Cloud\FTPDir\";
 
         static void Main(string[] args)
