@@ -5,6 +5,11 @@ namespace FaceIdTDA.Utils
 {
     public static class LogExtension
     {
+        public static void LogI(this ILogger logger, string message)
+        {
+            logger.LogInformation(message);
+        }
+
         public static void LogI(this ILogger logger, Exception exception)
         {
             logger.LogInformation(exception, exception.Message);

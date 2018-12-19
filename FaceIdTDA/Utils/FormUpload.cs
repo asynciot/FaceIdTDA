@@ -1,4 +1,6 @@
 ﻿using FaceIdTDA.Entities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,18 +21,27 @@ namespace FaceIdTDA.Utils
 
             byte[] formData = GetMultipartFormData(image, formDataBoundary);
 
-            using (HttpWebResponse response = PostForm(image, postUrl, contentType, formData, headers))
+            try
             {
-                StreamReader responseReader = new StreamReader(response.GetResponseStream());
-                string responseText = responseReader.ReadToEnd();
-                return responseText;
+                using (HttpWebResponse response = PostForm(image, postUrl, contentType, formData, headers))
+                {
+                    StreamReader responseReader = new StreamReader(response.GetResponseStream());
+                    string responseText = responseReader.ReadToEnd();
+                    return responseText;
+                }
+            }catch(Exception e)
+            {
+                IServiceProvider serviceProvider = DIFaceIdTDA.GetServiceProvider();
+                ILogger logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+                logger.LogE(e);
+                return "";
             }
         }
 
         private static HttpWebResponse PostForm(Image image, string postUrl, string contentType,
             byte[] formData, IDictionary<string, string> headers)
         {
-            string url = string.Format(postUrl, image.zptime, image.faceid, image.longitude, image.latitude, image.remark);
+            string url = string.Format(postUrl, image.puid, image.zptime, image.faceid, image.longitude, image.latitude, image.remark);
             if (!(WebRequest.Create(url) is HttpWebRequest request))
             {
                 throw new NullReferenceException("request is not a http request");
@@ -61,7 +72,6 @@ namespace FaceIdTDA.Utils
             using (Stream requestStream = request.GetRequestStream())
             {
                 requestStream.Write(formData, 0, formData.Length);
-                requestStream.Close();
             }
 
             return request.GetResponse() as HttpWebResponse;
@@ -78,7 +88,7 @@ namespace FaceIdTDA.Utils
 
                 var buffer = new byte[1024];
                 int bytesRead = 0;
-                using (FileStream fileStream = new FileStream(image.jpgFile.FullName, FileMode.Open))
+                using (FileStream fileStream = new FileStream(image.jpgFile.FullName, FileMode.Open, FileAccess.ReadWrite))
                 {
                     while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
                     {
@@ -93,7 +103,7 @@ namespace FaceIdTDA.Utils
 
                 formDataStream.Write(encoding.GetBytes(header), 0, encoding.GetByteCount(header));
 
-                using (FileStream fileStream = new FileStream(image.jpegFile.FullName, FileMode.Open))
+                using (FileStream fileStream = new FileStream(image.jpegFile.FullName, FileMode.Open, FileAccess.ReadWrite))
                 {
                     while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
                     {
